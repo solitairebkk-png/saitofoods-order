@@ -53,7 +53,7 @@
   .submit-btn { width: 100%; background: #1a3a2a; color: #fff; border: none; border-radius: 8px; padding: 16px; font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: background 0.2s; letter-spacing: 0.05em; }
   .submit-btn:hover { background: #2d5a40; }
   .submit-btn:disabled { background: #aaa; cursor: not-allowed; }
-  .success-msg { display: none; background: #d4edda; border: 1px solid #28a745; border-radius: 8px; padding: 20px; text-align: center; color: #155724; font-weight: 600; }
+  .success-msg { display: none; background: #d4edda; border: 2px solid #28a745; border-radius: 8px; padding: 30px 20px; text-align: center; color: #155724; font-weight: 700; font-size: 1.1rem; margin-bottom: 20px; }
   .success-msg.show { display: block; }
 </style>
 </head>
@@ -310,6 +310,11 @@ async function submitOrder() {
     name_ja: product.name_ja, name_en: product.name_en,
     price: product.price, qty, subtotal: product.price * qty
   }));
+
+  // 確認ダイアログ
+  const itemList = items.map(i => `・${i.name_en} x${i.qty} = ${i.subtotal} THB`).join('\n');
+  const confirmMsg = `Order Confirmation\n\nName: ${name}\nPhone: ${phone}\nDelivery: ${delivery_date} ${delivery_time}\n\nItems:\n${itemList}\n\nTotal: ${total} THB\n\nPlace this order?`;
+  if (!confirm(confirmMsg)) return;
 
   const orderData = { customer_name: name, phone, email, address, delivery_date, delivery_time, items, total, note };
 
