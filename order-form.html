@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>サイトウフーズ ご注文フォーム / Saito Foods Order Form</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', 'Arial', sans-serif;
+    background: #f5f5f0;
+    color: #2c2c2c;
+    min-height: 100vh;
+  }
+
+  header {
+    background: #1a3a2a;
+    color: #fff;
+    padding: 20px 24px;
+    text-align: center;
+  }
+  header h1 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+  header p {
+    font-size: 0.85rem;
+    opacity: 0.75;
+    margin-top: 4px;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+  }
+
+  .section {
+    background: #fff;
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  }
+
+  .section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1a3a2a;
+    border-left: 4px solid #1a3a2a;
+    padding-left: 10px;
+    margin-bottom: 18px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 600px) {
+    .form-grid { grid-template-columns: 1fr; }
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .form-group.full { grid-column: 1 / -1; }
+
+  label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #555;
+  }
+  label span.req {
+    color: #c0392b;
+    margin-left: 3px;
+  }
+  label span.en {
+    font-weight: 400;
+    color: #888;
+    margin-left: 4px;
+  }
+
+  input[type="text"], input[type="email"], input[type="tel"],
+  select, textarea {
+    border: 1.5px solid #ddd;
+    border-radius: 6px;
+    padding: 9px 12px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: border 0.2s;
+    background: #fafafa;
+    width: 100%;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #1a3a2a;
+    background: #fff;
+  }
+
+  /* 商品検索 */
+  .search-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .search-bar input {
+    flex: 1;
+    border: 1.5px solid #ddd;
+    border-radius: 6px;
+    padding: 9px 12px;
+    font-size: 0.9rem;
+    background: #fafafa;
+  }
+  .search-bar input:focus {
+    outline: none;
+    border-color: #1a3a2a;
+    background: #fff;
+  }
+
+  .product-list {
+    max-height: 380px;
+    overflow-y: auto;
+    border: 1.5px solid #e8e8e8;
+    border-radius: 8px;
+  }
+
+  .product-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-bottom: 1px solid #f0f0f0;
+    gap: 10px;
+    transition: background 0.15s;
+  }
+  .product-item:last-child { border-bottom: none; }
+  .product-item:hover { background: #f7faf8; }
+
+  .product-info { flex: 1; min-width: 0; }
+  .product-name-ja {
+    font-size: 0.88rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .product-name-en {
+    font-size: 0.75rem;
+    color: #888;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .product-price {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #1a3a2a;
+    white-space: nowrap;
+    min-width: 55px;
+    text-align: right;
+  }
+
+  .qty-control {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .qty-btn {
+    width: 28px;
+    height: 28px;
+    border: 1.5px solid #ccc;
+    border-radius: 50%;
+    background: #fff;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    transition: all 0.15s;
+  }
+  .qty-btn:hover { background: #1a3a2a; color: #fff; border-color: #1a3a2a; }
+  .qty-num {
+    min-width: 24px;
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
+  /* カート */
+  .cart-empty {
+    text-align: center;
+    color: #aaa;
+    font-size: 0.88rem;
+    padding: 20px 0;
+  }
+
+  .cart-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 0;
+    border-bottom: 1px solid #f0f0f0;
+    gap: 10px;
+  }
+  .cart-item:last-child { border-bottom: none; }
+  .cart-item-name { flex: 1; font-size: 0.87rem; }
+  .cart-item-name .en { font-size: 0.75rem; color: #888; }
+  .cart-item-price { font-size: 0.9rem; color: #555; white-space: nowrap; }
+  .cart-remove {
+    background: none;
+    border: none;
+    color: #ccc;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: color 0.15s;
+  }
+  .cart-remove:hover { color: #c0392b; }
+
+  .total-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0 0;
+    margin-top: 10px;
+    border-top: 2px solid #1a3a2a;
+  }
+  .total-label { font-size: 0.9rem; font-weight: 600; }
+  .total-amount {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #1a3a2a;
+  }
+
+  .min-warning {
+    display: none;
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    color: #856404;
+    margin-top: 10px;
+  }
+  .min-warning.show { display: block; }
+
+  /* 送信ボタン */
+  .submit-btn {
+    width: 100%;
+    background: #1a3a2a;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+    letter-spacing: 0.05em;
+  }
+  .submit-btn:hover { background: #2d5a40; }
+  .submit-btn:disabled { background: #aaa; cursor: not-allowed; }
+
+  .success-msg {
+    display: none;
+    background: #d4edda;
+    border: 1px solid #28a745;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    color: #155724;
+    font-weight: 600;
+  }
+  .success-msg.show { display: block; }
+
+  .loading { opacity: 0.6; pointer-events: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🍱 サイトウフーズ ご注文フォーム</h1>
+  <p>Saito Foods Order Form — Bangkok Delivery</p>
+</header>
+
+<div class="container">
+
+  <!-- お客様情報 -->
+  <div class="section">
+    <div class="section-title">お客様情報 / Customer Information</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>お名前 <span class="req">*</span><span class="en">Name</span></label>
+        <input type="text" id="customer_name" placeholder="山田 太郎 / Taro Yamada">
+      </div>
+      <div class="form-group">
+        <label>電話番号 <span class="req">*</span><span class="en">Phone</span></label>
+        <input type="tel" id="phone" placeholder="08X-XXX-XXXX">
+      </div>
+      <div class="form-group full">
+        <label>メールアドレス <span class="req">*</span><span class="en">Email</span></label>
+        <input type="email" id="email" placeholder="example@email.com">
+      </div>
+      <div class="form-group full">
+        <label>配送先住所 <span class="req">*</span><span class="en">Delivery Address</span></label>
+        <textarea id="address" rows="3" placeholder="コンドミニアム名、棟番号、部屋番号、通り名など / Condo name, building, room, street..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- 配送日時 -->
+  <div class="section">
+    <div class="section-title">配送希望日時 / Delivery Date & Time</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>配送希望日 <span class="req">*</span><span class="en">Date</span></label>
+        <select id="delivery_date">
+          <option value="">-- 日付を選択 / Select date --</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>時間帯 <span class="req">*</span><span class="en">Time slot</span></label>
+        <select id="delivery_time">
+          <option value="">-- 時間を選択 / Select time --</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- 商品選択 -->
+  <div class="section">
+    <div class="section-title">商品を選ぶ / Select Products</div>
+    <div class="search-bar">
+      <input type="text" id="search" placeholder="🔍 商品名で検索 / Search products...">
+    </div>
+    <div class="product-list" id="product-list">
+      <div class="cart-empty">読み込み中... / Loading...</div>
+    </div>
+  </div>
+
+  <!-- カート -->
+  <div class="section">
+    <div class="section-title">ご注文内容 / Order Summary</div>
+    <div id="cart-items">
+      <div class="cart-empty">商品を選んでください / Please select products</div>
+    </div>
+    <div class="total-bar">
+      <span class="total-label">合計 / Total</span>
+      <span class="total-amount" id="total-amount">0 THB</span>
+    </div>
+    <div class="min-warning" id="min-warning">
+      ⚠️ 最低注文金額は 600 THB です。あと <strong id="remaining"></strong> THB ご追加ください。<br>
+      <small>Minimum order is 600 THB. Please add <strong id="remaining-en"></strong> THB more.</small>
+    </div>
+  </div>
+
+  <!-- 備考 -->
+  <div class="section">
+    <div class="section-title">備考 / Notes</div>
+    <textarea id="note" rows="3" placeholder="アレルギー、特別なご要望など / Allergies, special requests..."></textarea>
+  </div>
+
+  <!-- 送信 -->
+  <button class="submit-btn" id="submit-btn" onclick="submitOrder()">
+    注文を送信する / Place Order
+  </button>
+
+  <div class="success-msg" id="success-msg">
+    ✅ ご注文を受け付けました！確認メールをお送りします。<br>
+    <small>Your order has been received. A confirmation email will be sent shortly.</small>
+  </div>
+
+</div>
+
+<script>
+// ===== SUPABASE CONFIG =====
+const SUPABASE_URL = 'https://lmhwanwhteloyjuybyzr.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_hZxr8LcbeGb2UsyJOJ0HWw_WbirZE5l';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxdH-Q8LH9A6p8TIL_v3MDWpdSzMjAQkOcV2JoiQQi0SuotVRNqEfgAb6ILTXRlAhF9tw/exec';
+
+// ===== GLOBALS =====
+let allProducts = [];
+let cart = {}; // { productId: { product, qty } }
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  buildDateOptions();
+  loadProducts();
+  document.getElementById('search').addEventListener('input', renderProducts);
+  document.getElementById('delivery_date').addEventListener('change', buildTimeOptions);
+});
+
+// ===== DATE OPTIONS =====
+function buildDateOptions() {
+  const sel = document.getElementById('delivery_date');
+  const now = new Date();
+  const isAfter17 = now.getHours() >= 17;
+  const startOffset = isAfter17 ? 1 : 0;
+
+  const days = ['日','月','火','水','木','金','土'];
+  const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  for (let i = startOffset; i <= 14; i++) {
+    const d = new Date(now);
+    d.setDate(d.getDate() + i);
+    const dow = d.getDay();
+    if (dow === 0) continue; // 日曜スキップ
+
+    const label = `${d.getMonth()+1}/${d.getDate()}（${days[dow]}）`;
+    const value = d.toISOString().split('T')[0];
+    const opt = document.createElement('option');
+    opt.value = value;
+    opt.textContent = label;
+    sel.appendChild(opt);
+  }
+}
+
+function buildTimeOptions() {
+  const sel = document.getElementById('delivery_time');
+  const dateStr = document.getElementById('delivery_date').value;
+  sel.innerHTML = '<option value="">-- 時間を選択 / Select time --</option>';
+  if (!dateStr) return;
+
+  const d = new Date(dateStr);
+  const dow = d.getDay(); // 0=Sun, 6=Sat
+
+  const slots = dow === 6
+    ? ['午前中 / Morning (before noon)']
+    : [
+        '午前中 / Morning (before noon)',
+        '13:00 - 15:00', '13:30 - 15:30', '14:00 - 16:00',
+        '14:30 - 16:30', '15:00 - 17:00', '15:30 - 17:30',
+        '16:00 - 18:00', '17:00 - 18:00'
+      ];
+
+  slots.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s;
+    opt.textContent = s;
+    sel.appendChild(opt);
+  });
+}
+
+// ===== LOAD PRODUCTS =====
+async function loadProducts() {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/products?select=*&order=name_ja`, {
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`
+      }
+    });
+    allProducts = await res.json();
+    renderProducts();
+  } catch(e) {
+    document.getElementById('product-list').innerHTML = '<div class="cart-empty">商品の読み込みに失敗しました / Failed to load products</div>';
+  }
+}
+
+// ===== RENDER PRODUCTS =====
+function renderProducts() {
+  const query = document.getElementById('search').value.toLowerCase();
+  const filtered = allProducts.filter(p =>
+    p.name_ja.toLowerCase().includes(query) ||
+    p.name_en.toLowerCase().includes(query) ||
+    (p.code && p.code.toLowerCase().includes(query))
+  );
+
+  const list = document.getElementById('product-list');
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="cart-empty">該当商品なし / No products found</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(p => {
+    const qty = cart[p.id] ? cart[p.id].qty : 0;
+    return `
+    <div class="product-item">
+      <div class="product-info">
+        <div class="product-name-ja">${p.name_ja}</div>
+        <div class="product-name-en">${p.name_en || ''}</div>
+      </div>
+      <div class="product-price">${p.price} THB</div>
+      <div class="qty-control">
+        <button class="qty-btn" onclick="changeQty(${p.id}, -1)">−</button>
+        <span class="qty-num" id="qty-${p.id}">${qty}</span>
+        <button class="qty-btn" onclick="changeQty(${p.id}, 1)">＋</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ===== CART =====
+function changeQty(productId, delta) {
+  const product = allProducts.find(p => p.id === productId);
+  if (!product) return;
+
+  const current = cart[productId] ? cart[productId].qty : 0;
+  const newQty = Math.max(0, current + delta);
+
+  if (newQty === 0) {
+    delete cart[productId];
+  } else {
+    cart[productId] = { product, qty: newQty };
+  }
+
+  // Update qty display in product list
+  const qtyEl = document.getElementById(`qty-${productId}`);
+  if (qtyEl) qtyEl.textContent = newQty;
+
+  renderCart();
+}
+
+function renderCart() {
+  const items = Object.values(cart);
+  const cartDiv = document.getElementById('cart-items');
+
+  if (items.length === 0) {
+    cartDiv.innerHTML = '<div class="cart-empty">商品を選んでください / Please select products</div>';
+    document.getElementById('total-amount').textContent = '0 THB';
+    document.getElementById('min-warning').classList.remove('show');
+    return;
+  }
+
+  let total = 0;
+  cartDiv.innerHTML = items.map(({ product, qty }) => {
+    const subtotal = product.price * qty;
+    total += subtotal;
+    return `
+    <div class="cart-item">
+      <div class="cart-item-name">
+        ${product.name_ja}<br>
+        <span class="en">${product.name_en || ''}</span>
+      </div>
+      <div class="cart-item-price">${product.price} × ${qty} = ${subtotal} THB</div>
+      <button class="cart-remove" onclick="removeItem(${product.id})">✕</button>
+    </div>`;
+  }).join('');
+
+  document.getElementById('total-amount').textContent = `${total} THB`;
+
+  const warning = document.getElementById('min-warning');
+  if (total < 600) {
+    const rem = 600 - total;
+    document.getElementById('remaining').textContent = rem;
+    document.getElementById('remaining-en').textContent = rem;
+    warning.classList.add('show');
+  } else {
+    warning.classList.remove('show');
+  }
+}
+
+function removeItem(productId) {
+  delete cart[productId];
+  const qtyEl = document.getElementById(`qty-${productId}`);
+  if (qtyEl) qtyEl.textContent = 0;
+  renderCart();
+}
+
+function getTotal() {
+  return Object.values(cart).reduce((sum, { product, qty }) => sum + product.price * qty, 0);
+}
+
+// ===== SUBMIT =====
+async function submitOrder() {
+  const name = document.getElementById('customer_name').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const address = document.getElementById('address').value.trim();
+  const delivery_date = document.getElementById('delivery_date').value;
+  const delivery_time = document.getElementById('delivery_time').value;
+  const note = document.getElementById('note').value.trim();
+
+  if (!name || !phone || !email || !address || !delivery_date || !delivery_time) {
+    alert('必須項目をすべて入力してください。\nPlease fill in all required fields.');
+    return;
+  }
+
+  const total = getTotal();
+  if (total < 600) {
+    alert(`最低注文金額は 600 THB です。\nMinimum order is 600 THB.`);
+    return;
+  }
+
+  const items = Object.values(cart).map(({ product, qty }) => ({
+    id: product.id,
+    code: product.code,
+    name_ja: product.name_ja,
+    name_en: product.name_en,
+    price: product.price,
+    qty,
+    subtotal: product.price * qty
+  }));
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = '送信中... / Sending...';
+
+  try {
+    // Supabaseに保存
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify({
+        customer_name: name,
+        phone,
+        email,
+        address,
+        delivery_date,
+        delivery_time,
+        items,
+        total,
+        note
+      })
+    });
+
+    if (!res.ok) throw new Error('Supabase error');
+
+    // LINE通知
+
+
+    await fetch(GAS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        customer_name: name,
+        phone, email, address,
+        delivery_date, delivery_time,
+        items, total,
+        note
+      })
+    }).catch(() => {}); // LINE通知は失敗しても続行
+
+    document.getElementById('success-msg').classList.add('show');
+    btn.style.display = 'none';
+    window.scrollTo(0, 0);
+
+  } catch(e) {
+    alert('送信に失敗しました。もう一度お試しください。\nFailed to send. Please try again.');
+    btn.disabled = false;
+    btn.textContent = '注文を送信する / Place Order';
+  }
+}
+</script>
+</body>
+</html>
